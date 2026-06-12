@@ -1,2 +1,41 @@
+# Env files (Secrets)
 .env
 .env.*
+!.env.example
+.env.example
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+logs/
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Database and persistence folders
+pgdata/
+db-data/
+postgres-data/
+
+# Coverage and test directories
+coverage/
+.nyc_output/
+*.txt
+data/

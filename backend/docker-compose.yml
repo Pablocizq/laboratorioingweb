@@ -1,0 +1,91 @@
+name: reservas-ingweb
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ingweb_postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      - ingweb_net
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: ingweb_rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      - ingweb_net
+
+  app-server:
+    build:
+      context: ./app-server
+      dockerfile: Dockerfile
+    container_name: ingweb_app_server
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      RABBITMQ_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@rabbitmq:5672
+      REQUEST_QUEUE: ${REQUEST_QUEUE}
+      RESPONSE_QUEUE: ${RESPONSE_QUEUE}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    volumes:
+      - ./data/espacios_geojson:/app/data/espacios_geojson:ro
+    networks:
+      - ingweb_net
+
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    container_name: ingweb_gateway
+    environment:
+      GATEWAY_PORT: "3000"
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
+      RABBITMQ_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@rabbitmq:5672
+      REQUEST_QUEUE: ${REQUEST_QUEUE}
+      RESPONSE_QUEUE: ${RESPONSE_QUEUE}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      app-server:
+        condition: service_started
+    ports:
+      - "3000:3000"
+    networks:
+      - ingweb_net
+
+volumes:
+  pgdata:
+
+networks:
+  ingweb_net:
+    driver: bridge
