@@ -32,12 +32,16 @@ class RepositorioEspaciosSQL extends IRepositorioEspacios {
       order: [["idEspacio", "ASC"]]
     });
 
-    // Mapeamos los modelos de base de datos a Entidades de Dominio puras
-    // y luego a JSON plano para devolverlo, cumpliendo las capas.
     return resultadosDB.map(fila => {
       const entidad = new EspacioEntity(fila.toJSON());
-      return { ...entidad }; // Serializamos la entidad
+      return { ...entidad };
     });
+  }
+
+  async buscarPorId(id) {
+    const fila = await this.modeloDB.findByPk(id);
+    if (!fila) return null;
+    return new EspacioEntity(fila.toJSON());
   }
 }
 

@@ -11,7 +11,7 @@ async function arrancarServidorRPC(casosDeUso) {
   canal.consume(nombreCola, async (mensaje) => {
     if (!mensaje) return;
 
-    // Extraemos la información de enrutamiento (patrón RPC)
+    // Extraemos la información de enrutamiento
     const responderA = mensaje.properties.replyTo;
     const idCorrelacion = mensaje.properties.correlationId;
     let resultadoOperacion;
@@ -19,9 +19,12 @@ async function arrancarServidorRPC(casosDeUso) {
     try {
       const { operacion, datos } = JSON.parse(mensaje.content.toString());
 
-      // --- Enrutador de Casos de Uso ---
+      // Casos de Uso
       if (operacion === "BUSCAR_ESPACIOS") {
         const respuesta = await casosDeUso.obtenerEspacios.ejecutar(datos);
+        resultadoOperacion = { exito: true, contenido: respuesta };
+      } else if (operacion === "CREAR_RESERVA") {
+        const respuesta = await casosDeUso.crearReserva.ejecutar(datos);
         resultadoOperacion = { exito: true, contenido: respuesta };
       } else {
         // Operación no implementada
@@ -37,7 +40,7 @@ async function arrancarServidorRPC(casosDeUso) {
       };
     }
 
-    // Devolvemos la respuesta al Gateway usando la cola temporal
+    // Devolvemos la respuesta al Gateway usando la cola
     if (responderA) {
       canal.sendToQueue(
         responderA,

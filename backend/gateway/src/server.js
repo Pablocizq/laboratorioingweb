@@ -7,9 +7,11 @@ app.use(express.json());
 
 const { conectarRabbit } = require("./messaging/broker-connection");
 const espaciosRoutes = require("./routes/espacios.routes");
+const reservasRoutes = require("./routes/reservas.routes");
 
 // Rutas del Gateway
 app.use("/api/espacios", espaciosRoutes);
+app.use("/api/reservas", reservasRoutes);
 
 // Verificamos el estado del servicio
 app.get("/health", (_req, res) => {

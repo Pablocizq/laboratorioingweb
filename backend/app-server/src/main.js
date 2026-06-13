@@ -1,29 +1,32 @@
-const { conectar, Usuario, Espacio } = require("./infrastructure/database");
+const { conectar, Usuario, Espacio, Reserva, ReservaEspacio } = require("./infrastructure/database");
 
 async function main() {
   console.log("[App-server] Iniciando...");
 
-  // Conectamos a la base de datos y ejecutamos seed
   await conectar();
 
-  // Inicializamos Casos de Uso e Inyección de Dependencias
   const RepositorioEspaciosSQL = require("./infrastructure/repositories/RepositorioEspaciosSQL");
+  const RepositorioUsuariosSQL = require("./infrastructure/repositories/RepositorioUsuariosSQL");
+  const RepositorioReservasSQL = require("./infrastructure/repositories/RepositorioReservasSQL");
   const ObtenerEspacios = require("./application/obtener-espacios");
-  
+  const CrearReserva = require("./application/crear-reserva");
+
   const repoEspacios = new RepositorioEspaciosSQL(Espacio);
+  const repoUsuarios = new RepositorioUsuariosSQL(Usuario);
+  const repoReservas = new RepositorioReservasSQL(Reserva, ReservaEspacio);
 
   const casosDeUso = {
-    obtenerEspacios: new ObtenerEspacios(repoEspacios)
+    obtenerEspacios: new ObtenerEspacios(repoEspacios),
+    crearReserva: new CrearReserva(repoEspacios, repoReservas, repoUsuarios),
   };
 
-  // Conectamos a RabbitMQ y arrancamos el consumidor RPC
   const { conectarRabbit } = require("./messaging/broker-connection");
   const { arrancarServidorRPC } = require("./messaging/rpc-server");
 
   await conectarRabbit();
   await arrancarServidorRPC(casosDeUso);
 
-  console.log("[App-server] Listo y esperando peticiones RPC de Gateway.");
+  console.log("[App-server] Listo y esperando peticiones de Gateway.");
 }
 
 main().catch((err) => {

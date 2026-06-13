@@ -17,10 +17,23 @@ class Espacio {
     this.departamentoId = departamentoId;
   }
 
-  // Aquí irían las reglas de negocio, getters y setters de dominio puro
-  // sin depender de bases de datos ni librerías externas.
   esReservable() {
-    return this.reservable;
+    return this.reservable === true;
+  }
+
+  esDespacho() {
+    return (this.categoria || "").trim().toLowerCase() === "despacho";
+  }
+
+  calcularCapacidadPermitida() {
+    if (!this.aforoMaximo) return 0;
+    const pct = this.porcentajeOcupacion ?? 100;
+    return Math.ceil(this.aforoMaximo * pct / 100);
+  }
+
+  admiteAsistentes(totalAsistentes) {
+    if (!this.aforoMaximo) return true;
+    return Number(totalAsistentes) <= this.calcularCapacidadPermitida();
   }
 }
 
