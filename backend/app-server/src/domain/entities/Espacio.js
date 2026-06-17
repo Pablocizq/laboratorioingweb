@@ -2,6 +2,7 @@
  * @entity Espacio
  * Entidad de dominio que representa un espacio físico en el edificio.
  */
+
 class Espacio {
   constructor({ id, idEspacio, nombre, tipoFisico, planta, aforoMaximo, porcentajeOcupacion, reservable, categoria, asignadoAEina, departamentoId }) {
     this.id = id;

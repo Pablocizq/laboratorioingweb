@@ -1,8 +1,14 @@
 const TIPOS_USO = ["docencia", "investigacion", "gestion", "otros"];
 
+/**
+ * Valida y normaliza el body del endpoint POST /api/reservas.
+ * El usuarioId NO se valida aquí, viene del JWT y lo inyecta el controlador.
+ *
+ * Postcondición: devuelve el body normalizado sin campos extra
+ */
+
 function validarCrearReserva(body) {
   const {
-    nombre,
     espacioIds,
     fecha,
     tipoUso,
@@ -11,10 +17,6 @@ function validarCrearReserva(body) {
     duracionMins,
     detalles,
   } = body;
-
-  if (!nombre || !String(nombre).trim()) {
-    throw new Error("El campo nombre es obligatorio");
-  }
 
   if (!espacioIds || !Array.isArray(espacioIds) || espacioIds.length === 0) {
     throw new Error("espacioIds debe ser un array con al menos un id");
@@ -55,7 +57,6 @@ function validarCrearReserva(body) {
   }
 
   return {
-    nombre: String(nombre).trim(),
     espacioIds: espacioIds.map(Number),
     fecha: String(fecha).trim(),
     horaInicio: String(horaInicio).trim(),

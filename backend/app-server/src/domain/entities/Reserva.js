@@ -4,6 +4,7 @@ const IntervaloReserva = require("../value-objects/IntervaloReserva");
  * @entity Reserva
  * Agregado raíz que representa una reserva de uno o más espacios.
  */
+
 class Reserva {
   constructor({
     id = null,

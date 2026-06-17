@@ -1,12 +1,27 @@
 const { enviarPeticionRPC } = require("../messaging/rpc-client");
 
+/**
+ * POST /api/reservas
+ * Crea una nueva reserva para el usuario autenticado.
+ * El id del usuario se extrae del token JWT (req.sesion),
+ * no del body, para evitar suplantación de identidad.
+ *
+ * Precondición:  req.sesion contiene el payload del JWT
+ * Postcondición: devuelve la reserva creada
+ */
+
 async function crearReserva(req, res) {
   try {
     const colaPeticiones = process.env.REQUEST_QUEUE || "reservas.requests";
 
+    const datosReserva = {
+      ...req.body,
+      usuarioId: req.sesion.id,
+    };
+
     const respuestaServidor = await enviarPeticionRPC(colaPeticiones, {
       operacion: "CREAR_RESERVA",
-      datos: req.datosValidados,
+      datos: datosReserva,
     });
 
     if (!respuestaServidor.exito) {
@@ -19,7 +34,7 @@ async function crearReserva(req, res) {
   } catch (error) {
     console.error("[Gateway Reservas Error]", error);
     return res.status(500).json({
-      error: "Fallo de comunicación con el servidor interno al crear la reserva.",
+      error: "Fallo de comunicación con el servidor al crear la reserva.",
     });
   }
 }

@@ -4,7 +4,6 @@ async function arrancarServidorRPC(casosDeUso) {
   const canal = await obtenerCanal();
   const nombreCola = process.env.REQUEST_QUEUE || "reservas.requests";
 
-  // Aseguramos que la cola para recibir peticiones existe
   await canal.assertQueue(nombreCola, { durable: true });
   console.log(`[App-Server] Consumidor activado. Escuchando peticiones RPC en la cola: ${nombreCola}`);
 
@@ -26,13 +25,15 @@ async function arrancarServidorRPC(casosDeUso) {
       } else if (operacion === "CREAR_RESERVA") {
         const respuesta = await casosDeUso.crearReserva.ejecutar(datos);
         resultadoOperacion = { exito: true, contenido: respuesta };
+      } else if (operacion === "INICIAR_SESION") {
+        const respuesta = await casosDeUso.iniciarSesion.ejecutar(datos);
+        resultadoOperacion = { exito: true, contenido: respuesta };
       } else {
-        // Operación no implementada
         resultadoOperacion = { exito: false, mensajeError: `Operación desconocida: ${operacion}` };
       }
 
     } catch (error) {
-      // Capturamos el error de dominio para devolverlo al Gateway
+      // Capturamos el error para devolverlo al Gateway
       resultadoOperacion = {
         exito: false,
         codigoEstado: error.statusCode || 500,

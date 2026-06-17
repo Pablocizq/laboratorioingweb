@@ -6,6 +6,10 @@ class IRepositorioUsuarios {
   async buscarPorNombre(nombre) {
     throw new Error("ERR_NOT_IMPLEMENTED: buscarPorNombre");
   }
+
+  async buscarPorEmail(email) {
+    throw new Error("ERR_NOT_IMPLEMENTED: buscarPorEmail");
+  }
 }
 
 module.exports = IRepositorioUsuarios;

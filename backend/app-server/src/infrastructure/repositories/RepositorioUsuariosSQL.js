@@ -24,6 +24,13 @@ class RepositorioUsuariosSQL extends IRepositorioUsuarios {
     });
     return this._aEntidad(fila);
   }
+
+  async buscarPorEmail(correo) {
+    const fila = await this.modeloDB.findOne({
+      where: { email: String(correo).trim().toLowerCase() },
+    });
+    return this._aEntidad(fila);
+  }
 }
 
 module.exports = RepositorioUsuariosSQL;

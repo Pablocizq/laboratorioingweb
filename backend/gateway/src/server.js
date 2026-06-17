@@ -1,24 +1,26 @@
 const express = require("express");
 
-const app  = express();
+const app = express();
 const PORT = process.env.GATEWAY_PORT || 3000;
 
 app.use(express.json());
 
 const { conectarRabbit } = require("./messaging/broker-connection");
+const autenticar = require("./middlewares/autenticar");
+
+// Rutas del Gateway
+const authRoutes = require("./routes/auth.routes");
 const espaciosRoutes = require("./routes/espacios.routes");
 const reservasRoutes = require("./routes/reservas.routes");
 
-// Rutas del Gateway
+app.use("/api/auth", authRoutes);
 app.use("/api/espacios", espaciosRoutes);
-app.use("/api/reservas", reservasRoutes);
+app.use("/api/reservas", autenticar, reservasRoutes);
 
-// Verificamos el estado del servicio
 app.get("/health", (_req, res) => {
   res.json({ status: "ok", service: "gateway" });
 });
 
-// Arrancamos dependencias y luego el servidor HTTP
 async function arrancarGateway() {
   try {
     await conectarRabbit();

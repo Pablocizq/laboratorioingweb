@@ -8,6 +8,7 @@ const TIPOS_USO_VALIDOS = ["docencia", "investigacion", "gestion", "otros"];
 /**
  * Caso de uso: creación de reservas con validación automática.
  */
+
 class CrearReserva {
   constructor(repositorioEspacios, repositorioReservas, repositorioUsuarios) {
     this.repoEspacios = repositorioEspacios;
@@ -17,7 +18,7 @@ class CrearReserva {
 
   async ejecutar(datos) {
     const {
-      nombre,
+      usuarioId,
       espacioIds,
       fecha,
       horaInicio,
@@ -27,12 +28,16 @@ class CrearReserva {
       detalles,
     } = datos;
 
-    const usuario = await this.repoUsuarios.buscarPorNombre(nombre);
+    if (!usuarioId) {
+      throw new ErrorDominio("Petición sin identificador de usuario autenticado.", 401);
+    }
+
+    const usuario = await this.repoUsuarios.buscarPorId(usuarioId);
     if (!usuario) {
-      throw new ErrorDominio(`No se encontró ningún usuario con el nombre "${nombre}"`, 404);
+      throw new ErrorDominio(`Usuario con id ${usuarioId} no encontrado.`, 404);
     }
     if (!usuario.tieneRolOperativo()) {
-      throw new ErrorDominio("El usuario no tiene rol asignado", 400);
+      throw new ErrorDominio("El usuario no tiene un rol operativo asignado.", 403);
     }
 
     if (!espacioIds?.length) {
@@ -65,7 +70,29 @@ class CrearReserva {
     const aperturaMinutos = 8 * 60;
     const cierreMinutos = 20 * 60;
     if (inicioMinutos < aperturaMinutos || finMinutos > cierreMinutos) {
-      throw { statusCode: 400, message: "El horario de la reserva debe estar comprendido entre las 08:00 y las 20:00." };
+      throw new ErrorDominio("El horario de la reserva debe estar comprendido entre las 08:00 y las 20:00.", 400);
+    }
+
+    // No se permiten reservas en fin de semana (0 = domingo, 6 = sábado)
+    const diaSemana = new Date(fecha + "T12:00:00").getDay();
+    if (diaSemana === 0 || diaSemana === 6) {
+      throw new ErrorDominio("No se pueden realizar reservas en fin de semana.", 400);
+    }
+
+    // No se permiten reservas en fechas ya pasadas
+    const hoy = new Date();
+    const fechaHoyStr = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, "0")}-${String(hoy.getDate()).padStart(2, "0")}`;
+    if (fecha < fechaHoyStr) {
+      throw new ErrorDominio("No se pueden realizar reservas en fechas pasadas.", 400);
+    }
+
+    // La reserva se debe realizar al menos 30 minutos antes de la hora de inicio
+    const [hInicio, mInicio] = horaInicio.split(":").map(Number);
+    const inicioReservaMs = new Date(fecha + "T" + horaInicio + ":00").getTime();
+    const ahoraMs = Date.now();
+    const TREINTA_MINUTOS_MS = 30 * 60 * 1000;
+    if (inicioReservaMs - ahoraMs < TREINTA_MINUTOS_MS) {
+      throw new ErrorDominio("La reserva debe realizarse con al menos 30 minutos de antelación.", 400);
     }
 
     for (const espacio of espacios) {
