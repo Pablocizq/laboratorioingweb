@@ -27,27 +27,58 @@ class RepositorioReservasSQL extends IRepositorioReservas {
   }
 
   async guardar(reserva) {
-    const modelo = await this.modeloReserva.create({
-      usuarioId: reserva.usuarioId,
-      fecha: reserva.fecha,
-      horaInicio: reserva.horaInicio,
-      duracion: reserva.duracionMinutos,
-      tipoUso: reserva.tipoUso,
-      numPersonas: reserva.asistentes,
-      descripcion: reserva.detalles,
-      estado: reserva.estado,
-    });
+    let modelo;
+    if (reserva.id) {
+      modelo = await this.modeloReserva.findByPk(reserva.id);
+      if (modelo) {
+        await modelo.update({
+          usuarioId: reserva.usuarioId,
+          fecha: reserva.fecha,
+          horaInicio: reserva.horaInicio,
+          duracion: reserva.duracionMinutos,
+          tipoUso: reserva.tipoUso,
+          numPersonas: reserva.asistentes,
+          descripcion: reserva.detalles,
+          estado: reserva.estado,
+        });
+      }
+    } 
+    
+    if (!modelo) {
+      modelo = await this.modeloReserva.create({
+        usuarioId: reserva.usuarioId,
+        fecha: reserva.fecha,
+        horaInicio: reserva.horaInicio,
+        duracion: reserva.duracionMinutos,
+        tipoUso: reserva.tipoUso,
+        numPersonas: reserva.asistentes,
+        descripcion: reserva.detalles,
+        estado: reserva.estado,
+      });
 
-    await Promise.all(
-      reserva.espacioIds.map((espacioId) =>
-        this.modeloReservaEspacio.create({
-          reservaId: modelo.id,
-          espacioId,
-        })
-      )
-    );
+      await Promise.all(
+        reserva.espacioIds.map((espacioId) =>
+          this.modeloReservaEspacio.create({
+            reservaId: modelo.id,
+            espacioId,
+          })
+        )
+      );
+    }
 
     return this._aEntidad(modelo, reserva.espacioIds);
+  }
+
+  async buscarPorId(id) {
+    const modelo = await this.modeloReserva.findByPk(id);
+    if (!modelo) return null;
+
+    const enlaces = await this.modeloReservaEspacio.findAll({
+      where: { reservaId: id },
+    });
+    const ids = enlaces.map((e) => e.espacioId);
+
+    return this._aEntidad(modelo, ids);
   }
 
   async buscarActivasPorEspacioYFecha(espacioId, fecha) {

@@ -47,6 +47,14 @@ class Reserva {
     return this.estado === "aceptada";
   }
 
+  estaActiva() {
+    return this.estado === "aceptada";
+  }
+
+  cancelar() {
+    this.estado = "cancelada";
+  }
+
   solapaCon(otraReserva) {
     return this._intervalo.solapaCon(otraReserva.intervalo);
   }

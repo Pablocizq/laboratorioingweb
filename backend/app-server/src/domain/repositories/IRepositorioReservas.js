@@ -10,6 +10,10 @@ class IRepositorioReservas {
   async buscarPorUsuario(usuarioId) {
     throw new Error("ERR_NOT_IMPLEMENTED: buscarPorUsuario");
   }
+
+  async buscarPorId(id) {
+    throw new Error("ERR_NOT_IMPLEMENTED: buscarPorId");
+  }
 }
 
 module.exports = IRepositorioReservas;

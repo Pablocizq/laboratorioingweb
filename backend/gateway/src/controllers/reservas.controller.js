@@ -72,4 +72,36 @@ async function misReservas(req, res) {
   }
 }
 
-module.exports = { crearReserva, misReservas };
+/**
+ * DELETE /api/reservas/:id
+ * Cancela una reserva existente.
+ *
+ * Precondición: req.sesion contiene el payload del JWT y contiene el ID de la reserva.
+ * Postcondición: La reserva ha sido cancelada
+ */
+async function cancelarReserva(req, res) {
+  try {
+    const colaPeticiones = process.env.REQUEST_QUEUE || "reservas.requests";
+    const reservaId = req.params.id;
+
+    const respuesta = await enviarPeticionRPC(colaPeticiones, {
+      operacion: "CANCELAR_RESERVA",
+      datos: { reservaId, usuarioId: req.sesion.id },
+    });
+
+    if (!respuesta.exito) {
+      return res.status(respuesta.codigoEstado || 500).json({
+        error: respuesta.mensajeError,
+      });
+    }
+
+    return res.status(200).json(respuesta.contenido);
+  } catch (error) {
+    console.error("[Gateway Reservas Error]", error);
+    return res.status(500).json({
+      error: "Fallo de comunicación con el servidor al cancelar la reserva.",
+    });
+  }
+}
+
+module.exports = { crearReserva, misReservas, cancelarReserva };

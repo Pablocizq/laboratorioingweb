@@ -31,6 +31,9 @@ async function arrancarServidorRPC(casosDeUso) {
       } else if (operacion === "CONSULTAR_MIS_RESERVAS") {
         const respuesta = await casosDeUso.consultarMisReservas.ejecutar(datos);
         resultadoOperacion = { exito: true, contenido: respuesta };
+      } else if (operacion === "CANCELAR_RESERVA") {
+        const respuesta = await casosDeUso.cancelarReserva.ejecutar(datos);
+        resultadoOperacion = { exito: true, contenido: respuesta };
       } else {
         resultadoOperacion = { exito: false, mensajeError: `Operación desconocida: ${operacion}` };
       }

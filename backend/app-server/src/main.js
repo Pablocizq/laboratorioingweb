@@ -13,6 +13,7 @@ async function main() {
   const CrearReserva          = require("./application/crear-reserva");
   const IniciarSesion         = require("./application/iniciar-sesion");
   const ConsultarMisReservas  = require("./application/consultar-mis-reservas");
+  const CancelarReserva       = require("./application/cancelar-reserva");
 
   const repoEspacios = new RepositorioEspaciosSQL(Espacio);
   const repoUsuarios = new RepositorioUsuariosSQL(Usuario);
@@ -23,6 +24,7 @@ async function main() {
     crearReserva:         new CrearReserva(repoEspacios, repoReservas, repoUsuarios),
     iniciarSesion:        new IniciarSesion(repoUsuarios),
     consultarMisReservas: new ConsultarMisReservas(repoReservas),
+    cancelarReserva:      new CancelarReserva(repoReservas),
   };
 
   const { conectarRabbit } = require("./messaging/broker-connection");
