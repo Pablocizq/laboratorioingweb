@@ -72,6 +72,27 @@ class RepositorioReservasSQL extends IRepositorioReservas {
       return this._aEntidad(m, ids);
     });
   }
+
+  async buscarPorUsuario(usuarioId) {
+    const modelos = await this.modeloReserva.findAll({
+      where: { usuarioId },
+      order: [["fecha", "DESC"], ["horaInicio", "DESC"]],
+    });
+
+    if (!modelos.length) return [];
+
+    const idsReserva = modelos.map((m) => m.id);
+    const enlaces = await this.modeloReservaEspacio.findAll({
+      where: { reservaId: idsReserva },
+    });
+
+    return modelos.map((m) => {
+      const ids = enlaces
+        .filter((e) => e.reservaId === m.id)
+        .map((e) => e.espacioId);
+      return this._aEntidad(m, ids);
+    });
+  }
 }
 
 module.exports = RepositorioReservasSQL;

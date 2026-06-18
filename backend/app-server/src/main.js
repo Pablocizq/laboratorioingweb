@@ -9,18 +9,20 @@ async function main() {
   const RepositorioUsuariosSQL = require("./infrastructure/repositories/RepositorioUsuariosSQL");
   const RepositorioReservasSQL = require("./infrastructure/repositories/RepositorioReservasSQL");
 
-  const ObtenerEspacios  = require("./application/obtener-espacios");
-  const CrearReserva     = require("./application/crear-reserva");
-  const IniciarSesion    = require("./application/iniciar-sesion");
+  const ObtenerEspacios       = require("./application/obtener-espacios");
+  const CrearReserva          = require("./application/crear-reserva");
+  const IniciarSesion         = require("./application/iniciar-sesion");
+  const ConsultarMisReservas  = require("./application/consultar-mis-reservas");
 
   const repoEspacios = new RepositorioEspaciosSQL(Espacio);
   const repoUsuarios = new RepositorioUsuariosSQL(Usuario);
   const repoReservas = new RepositorioReservasSQL(Reserva, ReservaEspacio);
 
   const casosDeUso = {
-    obtenerEspacios: new ObtenerEspacios(repoEspacios),
-    crearReserva:    new CrearReserva(repoEspacios, repoReservas, repoUsuarios),
-    iniciarSesion:   new IniciarSesion(repoUsuarios),
+    obtenerEspacios:      new ObtenerEspacios(repoEspacios),
+    crearReserva:         new CrearReserva(repoEspacios, repoReservas, repoUsuarios),
+    iniciarSesion:        new IniciarSesion(repoUsuarios),
+    consultarMisReservas: new ConsultarMisReservas(repoReservas),
   };
 
   const { conectarRabbit } = require("./messaging/broker-connection");

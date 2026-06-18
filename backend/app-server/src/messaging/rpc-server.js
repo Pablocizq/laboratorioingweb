@@ -28,6 +28,9 @@ async function arrancarServidorRPC(casosDeUso) {
       } else if (operacion === "INICIAR_SESION") {
         const respuesta = await casosDeUso.iniciarSesion.ejecutar(datos);
         resultadoOperacion = { exito: true, contenido: respuesta };
+      } else if (operacion === "CONSULTAR_MIS_RESERVAS") {
+        const respuesta = await casosDeUso.consultarMisReservas.ejecutar(datos);
+        resultadoOperacion = { exito: true, contenido: respuesta };
       } else {
         resultadoOperacion = { exito: false, mensajeError: `Operación desconocida: ${operacion}` };
       }

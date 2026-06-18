@@ -39,4 +39,37 @@ async function crearReserva(req, res) {
   }
 }
 
-module.exports = { crearReserva };
+/**
+ * GET /api/reservas/mis-reservas
+ * Devuelve todas las reservas del usuario autenticado.
+ * El usuarioId se extrae del JWT — nunca del body.
+ *
+ * Precondición:  req.sesion contiene el payload del JWT
+ * Postcondición: devuelve array con las reservas del usuario
+ */
+
+async function misReservas(req, res) {
+  try {
+    const colaPeticiones = process.env.REQUEST_QUEUE || "reservas.requests";
+
+    const respuesta = await enviarPeticionRPC(colaPeticiones, {
+      operacion: "CONSULTAR_MIS_RESERVAS",
+      datos: { usuarioId: req.sesion.id },
+    });
+
+    if (!respuesta.exito) {
+      return res.status(respuesta.codigoEstado || 500).json({
+        error: respuesta.mensajeError,
+      });
+    }
+
+    return res.status(200).json(respuesta.contenido);
+  } catch (error) {
+    console.error("[Gateway Reservas Error]", error);
+    return res.status(500).json({
+      error: "Fallo de comunicación con el servidor al obtener las reservas.",
+    });
+  }
+}
+
+module.exports = { crearReserva, misReservas };
