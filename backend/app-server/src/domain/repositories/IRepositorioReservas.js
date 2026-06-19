@@ -14,6 +14,10 @@ class IRepositorioReservas {
   async buscarPorId(id) {
     throw new Error("ERR_NOT_IMPLEMENTED: buscarPorId");
   }
+
+  async buscarVivas() {
+    throw new Error("ERR_NOT_IMPLEMENTED: buscarVivas");
+  }
 }
 
 module.exports = IRepositorioReservas;

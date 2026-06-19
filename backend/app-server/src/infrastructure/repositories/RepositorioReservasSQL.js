@@ -42,8 +42,8 @@ class RepositorioReservasSQL extends IRepositorioReservas {
           estado: reserva.estado,
         });
       }
-    } 
-    
+    }
+
     if (!modelo) {
       modelo = await this.modeloReserva.create({
         usuarioId: reserva.usuarioId,
@@ -122,6 +122,42 @@ class RepositorioReservasSQL extends IRepositorioReservas {
         .filter((e) => e.reservaId === m.id)
         .map((e) => e.espacioId);
       return this._aEntidad(m, ids);
+    });
+  }
+
+  async buscarVivas() {
+    const ahora = new Date();
+    const fechaHoy = ahora.toISOString().split("T")[0];
+
+    const modelos = await this.modeloReserva.findAll({
+      where: {
+        estado: "aceptada",
+        // Solo fechas de hoy en adelant
+        fecha: { [Op.gte]: fechaHoy },
+      },
+      order: [["fecha", "ASC"], ["horaInicio", "ASC"]],
+    });
+
+    if (!modelos.length) return [];
+
+    const idsReserva = modelos.map((m) => m.id);
+    const enlaces = await this.modeloReservaEspacio.findAll({
+      where: { reservaId: idsReserva },
+    });
+
+    const horaAhora = ahora.toTimeString().slice(0, 5);
+
+    // Si es hoy quitamos las que ya han terminado
+    const entidades = modelos.map((m) => {
+      const ids = enlaces
+        .filter((e) => e.reservaId === m.id)
+        .map((e) => e.espacioId);
+      return this._aEntidad(m, ids);
+    });
+
+    return entidades.filter((r) => {
+      if (r.fecha > fechaHoy) return true;
+      return r.horaFin > horaAhora;
     });
   }
 }

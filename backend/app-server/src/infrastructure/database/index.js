@@ -121,6 +121,9 @@ async function seed() {
   const cargarEspacios = require("./seeders/cargar-espacios");
   await cargarEspacios({ Espacio, Departamento, Usuario, EspacioUsuario });
 
+  const cargarReservasDemostracion = require("./seeders/cargar-reservas-pasadas");
+  await cargarReservasDemostracion({ Usuario, Reserva, ReservaEspacio, Espacio });
+
   console.log("[DB] Seed completado");
 }
 

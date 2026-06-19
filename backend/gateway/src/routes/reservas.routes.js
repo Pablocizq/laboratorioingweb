@@ -1,7 +1,7 @@
 const express = require("express");
 const validarPayload = require("../middlewares/validar-payload");
 const { validarCrearReserva } = require("../dtos/validar-crear-reserva");
-const { crearReserva, misReservas, cancelarReserva } = require("../controllers/reservas.controller");
+const { crearReserva, misReservas, cancelarReserva, reservasVivas } = require("../controllers/reservas.controller");
 
 const router = express.Router();
 
@@ -17,5 +17,8 @@ router.post(
 
 // DELETE /api/reservas/:id — Cancelar una reserva propia
 router.delete("/:id", cancelarReserva);
+
+// GET /api/reservas/vivas — Obtiene todas las reservas (solo gerentes)
+router.get("/vivas", reservasVivas);
 
 module.exports = router;

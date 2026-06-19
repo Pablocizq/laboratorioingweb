@@ -104,4 +104,33 @@ async function cancelarReserva(req, res) {
   }
 }
 
-module.exports = { crearReserva, misReservas, cancelarReserva };
+/**
+ * GET /api/reservas/vivas
+ * Devuelve todas las reservas vivas del sistema con info del usuario.
+ * Sólo para gerentes.
+ */
+async function reservasVivas(req, res) {
+  try {
+    const colaPeticiones = process.env.REQUEST_QUEUE || "reservas.requests";
+
+    const respuesta = await enviarPeticionRPC(colaPeticiones, {
+      operacion: "CONSULTAR_RESERVAS_VIVAS",
+      datos: { esGerente: req.sesion.esGerente },
+    });
+
+    if (!respuesta.exito) {
+      return res.status(respuesta.codigoEstado || 500).json({
+        error: respuesta.mensajeError,
+      });
+    }
+
+    return res.status(200).json(respuesta.contenido);
+  } catch (error) {
+    console.error("[Gateway Reservas Error]", error);
+    return res.status(500).json({
+      error: "Fallo de comunicación con el servidor al consultar las reservas vivas.",
+    });
+  }
+}
+
+module.exports = { crearReserva, misReservas, cancelarReserva, reservasVivas };

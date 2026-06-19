@@ -33,6 +33,16 @@ class CancelarReserva {
       throw err;
     }
 
+    const hoy = new Date();
+    const fechaHoyStr = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, "0")}-${String(hoy.getDate()).padStart(2, "0")}`;
+    const horaAhoraStr = `${String(hoy.getHours()).padStart(2, "0")}:${String(hoy.getMinutes()).padStart(2, "0")}`;
+
+    if (reserva.fecha < fechaHoyStr || (reserva.fecha === fechaHoyStr && reserva.horaFin <= horaAhoraStr)) {
+      const err = new Error("No se puede cancelar una reserva que ya ha finalizado.");
+      err.statusCode = 400;
+      throw err;
+    }
+
     if (String(reserva.usuarioId) !== String(usuarioId)) {
       const err = new Error("No tienes permiso para cancelar esta reserva.");
       err.statusCode = 403;
