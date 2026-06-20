@@ -12,10 +12,13 @@ class PoliticaPermisosReserva {
    * @param {number|null} deptEspacioId
    */
   static puedeReservar(rol, esGerente, categoria, deptUsuarioId, deptEspacioId) {
-    if (esGerente) return true;
-    if (!rol || !categoria) return false;
-
+    if (!categoria) return false;
     const cat = categoria.trim().toLowerCase();
+
+    if (cat === "despacho") return false;
+
+    if (esGerente) return true;
+    if (!rol) return false;
 
     // estudiantes solo salas comunes
     if (rol === "estudiante") {

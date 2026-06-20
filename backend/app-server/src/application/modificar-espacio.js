@@ -177,14 +177,14 @@ class ModificarEspacio {
           }
         }
 
-        // Restricción de despachos no reservables por estar asignados a docentes o investigador
-        const reservableFuturo = reservable !== undefined ? reservable : espacioObj.reservable;
-        if (categoriaVO.esDespacho() && contieneProfesorOContratado && reservableFuturo) {
-          const errorReservable = new Error("Un despacho asignado a investigador contratado o docente-investigador no puede ser reservable.");
-          errorReservable.statusCode = 400;
-          throw errorReservable;
-        }
       }
+    }
+    // Los despachos no pueden reservarse
+    const reservableFuturo = reservable !== undefined ? reservable : espacioObj.reservable;
+    if (categoriaVO.esDespacho() && reservableFuturo) {
+      const errorReservable = new Error("Los despachos no pueden hacerse reservables.");
+      errorReservable.statusCode = 400;
+      throw errorReservable;
     }
 
     // Cambios automaticos en las asignaciones al cambiar la categoria del espacio
