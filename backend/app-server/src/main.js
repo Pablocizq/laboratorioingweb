@@ -1,4 +1,4 @@
-const { conectar, Usuario, Espacio, Reserva, ReservaEspacio } = require("./infrastructure/database");
+const { conectar, Usuario, Espacio, Reserva, ReservaEspacio, EspacioUsuario } = require("./infrastructure/database");
 
 async function main() {
   console.log("[App-server] Iniciando...");
@@ -15,8 +15,9 @@ async function main() {
   const ConsultarMisReservas  = require("./application/consultar-mis-reservas");
   const CancelarReserva       = require("./application/cancelar-reserva");
   const ConsultarReservasVivas= require("./application/consultar-reservas-vivas");
+  const ModificarEspacio      = require("./application/modificar-espacio");
 
-  const repoEspacios = new RepositorioEspaciosSQL(Espacio);
+  const repoEspacios = new RepositorioEspaciosSQL(Espacio, EspacioUsuario, Usuario);
   const repoUsuarios = new RepositorioUsuariosSQL(Usuario);
   const repoReservas = new RepositorioReservasSQL(Reserva, ReservaEspacio);
 
@@ -27,6 +28,7 @@ async function main() {
     consultarMisReservas: new ConsultarMisReservas(repoReservas),
     cancelarReserva:      new CancelarReserva(repoReservas),
     consultarReservasVivas: new ConsultarReservasVivas(repoReservas, repoUsuarios),
+    modificarEspacio:     new ModificarEspacio(repoEspacios, repoReservas, repoUsuarios),
   };
 
   const { conectarRabbit } = require("./messaging/broker-connection");

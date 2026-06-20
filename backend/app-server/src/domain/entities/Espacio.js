@@ -4,7 +4,7 @@
  */
 
 class Espacio {
-  constructor({ id, idEspacio, nombre, tipoFisico, planta, aforoMaximo, porcentajeOcupacion, reservable, categoria, asignadoAEina, departamentoId }) {
+  constructor({ id, idEspacio, nombre, tipoFisico, planta, aforoMaximo, porcentajeOcupacion, reservable, categoria, asignadoAEina, departamentoId, usuariosAsignados = [] }) {
     this.id = id;
     this.idEspacio = idEspacio;
     this.nombre = nombre;
@@ -16,6 +16,7 @@ class Espacio {
     this.categoria = categoria;
     this.asignadoAEina = asignadoAEina;
     this.departamentoId = departamentoId;
+    this.usuariosAsignados = Array.isArray(usuariosAsignados) ? usuariosAsignados : [];
   }
 
   esReservable() {
@@ -35,6 +36,10 @@ class Espacio {
   admiteAsistentes(totalAsistentes) {
     if (!this.aforoMaximo) return true;
     return Number(totalAsistentes) <= this.calcularCapacidadPermitida();
+  }
+
+  estaAsignadoA(usuarioId) {
+    return this.usuariosAsignados.some(u => String(u.id ?? u) === String(usuarioId));
   }
 }
 

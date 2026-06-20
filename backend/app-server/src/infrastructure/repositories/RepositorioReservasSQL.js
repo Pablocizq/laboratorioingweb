@@ -160,6 +160,51 @@ class RepositorioReservasSQL extends IRepositorioReservas {
       return r.horaFin > horaAhora;
     });
   }
+
+  async buscarVivasPorEspacio(espacioId) {
+    const ahora = new Date();
+    const fechaHoy = ahora.toISOString().split("T")[0];
+
+    // Primero buscamos los enlaces de las reservas para este espacio
+    const enlaces = await this.modeloReservaEspacio.findAll({
+      where: { espacioId },
+    });
+
+    if (!enlaces.length) return [];
+
+    const idsReserva = enlaces.map((e) => e.reservaId);
+
+    // Buscamos las reservas que estén aceptadas y de hoy en adelante
+    const modelos = await this.modeloReserva.findAll({
+      where: {
+        id: idsReserva,
+        estado: "aceptada",
+        fecha: { [Op.gte]: fechaHoy },
+      },
+      order: [["fecha", "ASC"], ["horaInicio", "ASC"]],
+    });
+
+    if (!modelos.length) return [];
+
+    // Obtenemos todos los enlaces de las reservas resultantes para tener todos sus espacios
+    const todosEnlaces = await this.modeloReservaEspacio.findAll({
+      where: { reservaId: modelos.map((m) => m.id) },
+    });
+
+    const horaAhora = ahora.toTimeString().slice(0, 5);
+
+    const entidades = modelos.map((m) => {
+      const ids = todosEnlaces
+        .filter((e) => e.reservaId === m.id)
+        .map((e) => e.espacioId);
+      return this._aEntidad(m, ids);
+    });
+
+    return entidades.filter((r) => {
+      if (r.fecha > fechaHoy) return true;
+      return r.horaFin > horaAhora;
+    });
+  }
 }
 
 module.exports = RepositorioReservasSQL;

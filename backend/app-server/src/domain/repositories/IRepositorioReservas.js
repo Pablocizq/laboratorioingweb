@@ -18,6 +18,10 @@ class IRepositorioReservas {
   async buscarVivas() {
     throw new Error("ERR_NOT_IMPLEMENTED: buscarVivas");
   }
+
+  async buscarVivasPorEspacio(espacioId) {
+    throw new Error("ERR_NOT_IMPLEMENTED: buscarVivasPorEspacio");
+  }
 }
 
 module.exports = IRepositorioReservas;

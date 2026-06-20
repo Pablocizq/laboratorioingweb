@@ -37,6 +37,9 @@ async function arrancarServidorRPC(casosDeUso) {
       } else if (operacion === "CONSULTAR_RESERVAS_VIVAS") {
         const respuesta = await casosDeUso.consultarReservasVivas.ejecutar(datos);
         resultadoOperacion = { exito: true, contenido: respuesta };
+      } else if (operacion === "MODIFICAR_ESPACIO") {
+        const respuesta = await casosDeUso.modificarEspacio.ejecutar(datos);
+        resultadoOperacion = { exito: true, contenido: respuesta };
       } else {
         resultadoOperacion = { exito: false, mensajeError: `Operación desconocida: ${operacion}` };
       }
