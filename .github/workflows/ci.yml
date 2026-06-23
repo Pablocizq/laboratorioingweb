@@ -1,34 +1,50 @@
-name: CI de Compilación y Dependencias
+name: CI
 
 on:
   push:
-    branches: [ "main", "master" ]
-  pull_request:
-    branches: [ "main", "master" ]
+    branches: [ main, master]
 
 jobs:
-  build-and-test:
+  test-app-server:
+    name: app-server
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [24.x]
+    defaults:
+      run:
+        working-directory: ./laboratorioingweb/backend/app-server
 
     steps:
-    - name: Descargamos el código del repositorio
-      uses: actions/checkout@v4
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
 
-    - name: Configuramos Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
+      - name: Instalamos Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: app-server/package-lock.json
 
-    - name: Gestionamos dependencias y construimos app-Server
-      working-directory: laboratorioingweb/backend/app-server
-      run: |
-        npm install
+      - name: Instalamos dependencias del app-server
+        run: npm ci
 
-    - name: Gestionamos dependencias y construimos gateway
-      working-directory: laboratorioingweb/backend/gateway
-      run: |
-        npm install
+  test-gateway:
+    name: gateway
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./laboratorioingweb/backend/gateway
+
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Instalamos Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: gateway/package-lock.json
+
+      - name: Instalamos dependencias del gateway
+        run: npm ci
