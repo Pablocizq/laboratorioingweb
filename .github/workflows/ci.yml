@@ -24,15 +24,15 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
         cache-dependency-path: |
-          laboratorioingweb/backend/app-server/package-lock.json
-          laboratorioingweb/backend/gateway/package-lock.json
+          backend/app-server/package-lock.json
+          backend/gateway/package-lock.json
 
     - name: Gestionamos dependencias y construimos app-Server
-      working-directory: laboratorioingweb/backend/app-server
+      working-directory: backend/app-server
       run: |
         npm ci
 
     - name: Gestionamos dependencias y construimos gateway
-      working-directory: laboratorioingweb/backend/gateway
+      working-directory: backend/gateway
       run: |
         npm ci
