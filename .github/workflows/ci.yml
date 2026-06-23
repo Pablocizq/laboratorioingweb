@@ -1,0 +1,38 @@
+name: CI de Compilación y Dependencias
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+    - name: Descargamos el código del repositorio
+      uses: actions/checkout@v4
+
+    - name: Configuramos Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: |
+          backend/app-server/package-lock.json
+          backend/gateway/package-lock.json
+
+    - name: Gestionamos dependencias y construimos app-Server
+      working-directory: backend/app-server
+      run: |
+        npm ci
+
+    - name: Gestionamos dependencias y construimos gateway
+      working-directory: backend/gateway
+      run: |
+        npm ci
